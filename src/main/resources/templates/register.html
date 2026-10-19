@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>注册 · 拾光书店</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+<header class="masthead">
+    <div class="masthead-inner">
+        <a class="brand" th:href="@{/}">
+            <span class="brand-seal" aria-hidden="true">书</span>
+            <span class="brand-text">拾光书店</span>
+        </a>
+        <p class="brand-note">校园图书目录</p>
+    </div>
+</header>
+
+<main class="auth-layout">
+    <section class="auth-card">
+        <h1 class="auth-title">创建账户</h1>
+        <p class="auth-intro">注册后可以保存购物车、查看订单。</p>
+
+        <p class="form-error" th:if="${error}" th:text="${error}">错误提示</p>
+        <p class="form-success" th:if="${message}" th:text="${message}">成功提示</p>
+
+        <form method="post" th:action="@{/register}" class="auth-form">
+            <label>姓名
+                <input type="text" name="name" th:value="${name}"
+                       required maxlength="30" autocomplete="name">
+            </label>
+            <label>邮箱
+                <input type="email" name="email" th:value="${email}"
+                       required maxlength="254" autocomplete="username">
+            </label>
+            <label>密码
+                <input type="password" name="password"
+                       required minlength="8" maxlength="72" autocomplete="new-password">
+            </label>
+            <label>确认密码
+                <input type="password" name="confirm"
+                       required minlength="8" maxlength="72" autocomplete="new-password">
+            </label>
+            <button type="submit">创建账户</button>
+        </form>
+
+        <p class="auth-switch">已经有账户?<a th:href="@{/login}">去登录</a></p>
+    </section>
+</main>
+</body>
+</html>

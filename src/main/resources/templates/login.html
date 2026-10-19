@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>登录 · 拾光书店</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+<header class="masthead">
+    <div class="masthead-inner">
+        <a class="brand" th:href="@{/}">
+            <span class="brand-seal" aria-hidden="true">书</span>
+            <span class="brand-text">拾光书店</span>
+        </a>
+        <p class="brand-note">校园图书目录</p>
+    </div>
+</header>
+
+<main class="auth-layout">
+    <section class="auth-card">
+        <h1 class="auth-title">登录</h1>
+        <p class="auth-intro">登录后可以查看购物车和订单。</p>
+
+        <p class="form-error" th:if="${error}" th:text="${error}">错误提示</p>
+
+        <form method="post" th:action="@{/login}" class="auth-form">
+            <label>邮箱
+                <input type="email" name="username" required maxlength="254"
+                       autocomplete="username">
+            </label>
+            <label>密码
+                <input type="password" name="password" required maxlength="72"
+                       autocomplete="current-password">
+            </label>
+            <button type="submit">登录</button>
+        </form>
+
+        <p class="auth-switch">还没有账户？<a th:href="@{/register}">去注册</a></p>
+    </section>
+</main>
+</body>
+</html>
