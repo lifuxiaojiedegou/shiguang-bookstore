@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>我的订单 · 拾光书店</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+<header class="masthead">
+    <div class="masthead-inner">
+        <a class="brand" th:href="@{/}">
+            <span class="brand-seal" aria-hidden="true">书</span>
+            <span class="brand-text">拾光书店</span>
+        </a>
+        <div class="masthead-meta">
+            <p class="brand-note">校园图书目录</p>
+            <div class="account" sec:authorize="isAuthenticated()">
+                <a th:href="@{/cart}">购物车</a>
+                <a th:href="@{/orders}">我的订单</a>
+                <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/orders}">管理后台</a>
+                <span sec:authentication="name">用户</span>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit">退出</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="page-shell">
+    <h1 class="page-title">我的订单</h1>
+
+    <p class="form-success" th:if="${message}" th:text="${message}">提示</p>
+    <p class="form-error" th:if="${error}" th:text="${error}">错误</p>
+
+    <div class="cart-empty" th:if="${#lists.isEmpty(orders)}">
+        <p>还没有订单。</p>
+        <p><a th:href="@{/}">去挑几本书</a></p>
+    </div>
+
+    <article class="order-card" th:each="order : ${orders}">
+        <div class="order-head">
+            <h2>订单 #<span th:text="${order.id}">1</span></h2>
+            <span class="status-badge"
+                  th:classappend="'status-' + ${#strings.toLowerCase(order.status.name())}"
+                  th:text="${order.status.label()}">待付款</span>
+        </div>
+
+        <p class="order-meta">
+            下单时间：
+            <span th:text="${#strings.replace(order.createdAt.toString(), 'T', ' ')}">2026-10-20 18:00:00</span>
+            <span th:if="${order.paidAt != null}">
+                ｜付款时间：
+                <span th:text="${#strings.replace(order.paidAt.toString(), 'T', ' ')}">2026-10-20 18:05:00</span>
+            </span>
+        </p>
+        <p class="order-address">收货信息：<span th:text="${order.address}">地址</span></p>
+        <p class="order-address" th:if="${order.trackingNo != null}">
+            物流单号：<span th:text="${order.trackingNo}">单号</span>
+        </p>
+
+        <div class="table-wrap">
+            <table class="cart-table">
+                <thead>
+                <tr>
+                    <th>商品</th>
+                    <th>单价</th>
+                    <th>数量</th>
+                    <th>小计</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${order.items}">
+                    <td th:text="${item.name}">书名</td>
+                    <td th:text="|¥${#numbers.formatDecimal(item.unitPriceCents / 100.0, 1, 2)}|">¥0.00</td>
+                    <td th:text="${item.quantity}">1</td>
+                    <td th:text="|¥${#numbers.formatDecimal(item.subtotalCents() / 100.0, 1, 2)}|">¥0.00</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p class="order-total">
+            订单金额
+            <strong th:text="|¥${#numbers.formatDecimal(order.totalCents / 100.0, 1, 2)}|">¥0.00</strong>
+        </p>
+        <p class="order-meta" th:if="${order.status.name() == 'PAID'}">等待管理员发货。</p>
+
+        <div class="order-actions" th:if="${order.status.name() == 'UNPAID'}">
+            <form th:action="@{/orders/pay}" method="post">
+                <input type="hidden" name="orderId" th:value="${order.id}">
+                <button type="submit">模拟付款</button>
+            </form>
+            <form th:action="@{/orders/cancel}" method="post">
+                <input type="hidden" name="orderId" th:value="${order.id}">
+                <button type="submit" class="danger">取消订单</button>
+            </form>
+        </div>
+
+        <div class="order-actions" th:if="${order.status.name() == 'SHIPPED'}">
+            <form th:action="@{/orders/complete}" method="post">
+                <input type="hidden" name="orderId" th:value="${order.id}">
+                <button type="submit">确认收货</button>
+            </form>
+        </div>
+
+        <p class="order-meta" th:if="${order.status.name() == 'UNPAID'}">
+            付款为模拟操作，不会真实扣款。
+        </p>
+    </article>
+</main>
+</body>
+</html>

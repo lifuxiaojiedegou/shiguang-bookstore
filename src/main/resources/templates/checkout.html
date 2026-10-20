@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>结算 · 拾光书店</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+<header class="masthead">
+    <div class="masthead-inner">
+        <a class="brand" th:href="@{/}">
+            <span class="brand-seal" aria-hidden="true">书</span>
+            <span class="brand-text">拾光书店</span>
+        </a>
+        <div class="masthead-meta">
+            <p class="brand-note">校园图书目录</p>
+            <div class="account" sec:authorize="isAuthenticated()">
+                <a th:href="@{/cart}">购物车</a>
+                <a th:href="@{/orders}">我的订单</a>
+                <span sec:authentication="name">用户</span>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit">退出</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="page-shell">
+    <h1 class="page-title">结算</h1>
+
+    <p class="form-error" th:if="${error}" th:text="${error}">错误提示</p>
+
+    <div class="checkout-grid">
+        <section class="checkout-panel">
+            <h2>收货信息</h2>
+            <form th:action="@{/checkout}" method="post" class="address-form">
+                <input type="hidden" name="checkoutToken" th:value="${checkoutToken}">
+                <label>收货人、电话与地址
+                    <textarea name="address" required minlength="5" maxlength="300"
+                              placeholder="例如：张三，13800000000，南区 3 号楼 502"></textarea>
+                </label>
+                <button type="submit">提交订单</button>
+            </form>
+        </section>
+
+        <aside class="summary-panel">
+            <h2>订单摘要</h2>
+            <ul class="summary-list">
+                <li th:each="item : ${items}">
+                    <span>
+                        <span th:text="${item.name}">书名</span>
+                        × <span th:text="${item.quantity}">1</span>
+                    </span>
+                    <span th:text="|¥${#numbers.formatDecimal(item.subtotalCents() / 100.0, 1, 2)}|">¥0.00</span>
+                </li>
+            </ul>
+            <div class="summary-total">
+                <span>合计</span>
+                <strong th:text="|¥${#numbers.formatDecimal(totalCents / 100.0, 1, 2)}|">¥0.00</strong>
+            </div>
+            <p class="auth-switch"><a th:href="@{/cart}">返回购物车修改</a></p>
+        </aside>
+    </div>
+</main>
+</body>
+</html>
