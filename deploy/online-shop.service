@@ -1,0 +1,19 @@
+[Unit]
+Description=Online Shop Spring Boot Application
+After=network.target mysql.service
+
+[Service]
+Type=simple
+User=onlineshop
+Group=onlineshop
+WorkingDirectory=/opt/online-shop
+EnvironmentFile=/etc/online-shop.env
+ExecStart=/usr/bin/java -Xms256m -Xmx512m -jar /opt/online-shop/online-shop.jar
+SuccessExitStatus=143
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

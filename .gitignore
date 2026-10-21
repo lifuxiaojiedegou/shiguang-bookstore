@@ -33,3 +33,4 @@ build/
 ### VS Code ###
 .vscode/
 /data/
+/deploy/online-shop.env

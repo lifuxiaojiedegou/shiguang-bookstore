@@ -162,7 +162,7 @@ java -jar target/online-shop-0.0.1-SNAPSHOT.jar
 - 通过环境变量注入数据库密码和 SMTP 授权码；
 - 只开放必要端口，定期备份数据库。
 
-详细部署步骤在完成后补充。
+详细部署步骤见 [deploy/README.md](deploy/README.md)。
 
 ## 十、设计与一致性
 
