@@ -34,3 +34,4 @@ build/
 .vscode/
 /data/
 /deploy/online-shop.env
+/docs/screenshots/25-smtp-inbox.png
