@@ -196,6 +196,14 @@ sudo journalctl -u online-shop -n 100 --no-pager
 - Nginx 是否运行：`sudo systemctl status nginx`；
 - `curl -I http://127.0.0.1:8080/` 是否正常。
 
+### 跳转后丢失 8080 端口
+
+如果登录或注册后跳到 `http://服务器IP/login`（没有 8080），说明反向代理没有把端口传给应用：
+
+- Nginx 必须使用 `proxy_set_header Host $http_host;`，并设置 `X-Forwarded-Host`、`X-Forwarded-Port 8080`；
+- `/etc/online-shop.env` 中加入 `SERVER_FORWARD_HEADERS_STRATEGY=framework`；
+- 修改后执行 `nginx -t && systemctl reload nginx`，再重启应用。
+
 ### 邮件发送失败
 
 - `MAIL_MODE` 是否为 `smtp`；
