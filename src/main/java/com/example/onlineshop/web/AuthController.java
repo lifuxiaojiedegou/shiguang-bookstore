@@ -6,6 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class AuthController {
@@ -17,11 +18,7 @@ public class AuthController {
     }
 
     @GetMapping("/register")
-    public String registerForm(@RequestParam(defaultValue = "false") boolean success,
-                               Model model) {
-        if (success) {
-            model.addAttribute("message", "注册成功，下一步实现登录。");
-        }
+    public String registerForm() {
         return "register";
     }
 
@@ -31,7 +28,8 @@ public class AuthController {
             @RequestParam String email,
             @RequestParam String password,
             @RequestParam String confirm,
-            Model model) {
+            Model model,
+            RedirectAttributes redirect) {
         model.addAttribute("name", name);
         model.addAttribute("email", email);
 
@@ -54,7 +52,9 @@ public class AuthController {
             return error(model, exception.getMessage());
         }
 
-        return "redirect:/register?success";
+        redirect.addFlashAttribute("message", "注册成功，请使用刚才的邮箱登录。");
+        redirect.addFlashAttribute("email", email.strip());
+        return "redirect:/login";
     }
 
     private String error(Model model, String message) {

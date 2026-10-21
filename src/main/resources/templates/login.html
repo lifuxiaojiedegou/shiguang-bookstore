@@ -22,12 +22,13 @@
         <h1 class="auth-title">登录</h1>
         <p class="auth-intro">登录后可以查看购物车和订单。</p>
 
+        <p class="form-success" th:if="${message}" th:text="${message}">注册成功，请登录。</p>
         <p class="form-error" th:if="${error}" th:text="${error}">错误提示</p>
 
         <form method="post" th:action="@{/login}" class="auth-form">
             <label>邮箱
                 <input type="email" name="username" required maxlength="254"
-                       autocomplete="username">
+                       autocomplete="username" th:value="${email}">
             </label>
             <label>密码
                 <input type="password" name="password" required maxlength="72"
