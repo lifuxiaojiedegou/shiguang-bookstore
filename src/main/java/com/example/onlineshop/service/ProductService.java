@@ -1,9 +1,12 @@
 package com.example.onlineshop.service;
 
+// AI-assisted: Claude Code, 2026-10; reviewed and modified by 方喆.
+
 import com.example.onlineshop.model.Product;
 import com.example.onlineshop.repository.ProductRepository;
 import java.util.List;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProductService {
@@ -58,6 +61,19 @@ public class ProductService {
 
     public void setActive(long id, boolean active) {
         if (products.setActive(id, active) == 0) {
+            throw new IllegalArgumentException("商品不存在");
+        }
+    }
+
+    @Transactional
+    public void delete(long id) {
+        products.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("商品不存在"));
+        if (products.hasOrderItems(id)) {
+            throw new IllegalArgumentException("该商品已有历史订单，不能删除；请使用下架");
+        }
+        products.deleteCartItems(id);
+        if (products.delete(id) == 0) {
             throw new IllegalArgumentException("商品不存在");
         }
     }

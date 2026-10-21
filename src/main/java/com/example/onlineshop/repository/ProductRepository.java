@@ -1,5 +1,7 @@
 package com.example.onlineshop.repository;
 
+// AI-assisted: Claude Code, 2026-10; reviewed and modified by 方喆.
+
 import com.example.onlineshop.model.Product;
 import java.util.List;
 import java.util.Optional;
@@ -95,5 +97,20 @@ public class ProductRepository {
 
     public int setActive(long id, boolean active) {
         return jdbc.update("UPDATE product SET active = ? WHERE id = ?", active, id);
+    }
+
+    public boolean hasOrderItems(long productId) {
+        Integer count = jdbc.queryForObject(
+                "SELECT COUNT(*) FROM order_item WHERE product_id = ?",
+                Integer.class, productId);
+        return count != null && count > 0;
+    }
+
+    public void deleteCartItems(long productId) {
+        jdbc.update("DELETE FROM cart_item WHERE product_id = ?", productId);
+    }
+
+    public int delete(long productId) {
+        return jdbc.update("DELETE FROM product WHERE id = ?", productId);
     }
 }

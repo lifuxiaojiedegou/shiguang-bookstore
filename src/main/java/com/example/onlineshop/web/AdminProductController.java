@@ -76,6 +76,17 @@ public class AdminProductController {
         return "redirect:/admin/products";
     }
 
+    @PostMapping("/delete")
+    public String delete(@RequestParam long id, RedirectAttributes redirect) {
+        try {
+            products.delete(id);
+            redirect.addFlashAttribute("message", "商品已删除");
+        } catch (IllegalArgumentException exception) {
+            redirect.addFlashAttribute("error", exception.getMessage());
+        }
+        return "redirect:/admin/products";
+    }
+
     private int parsePriceCents(String priceText) {
         try {
             return new BigDecimal(priceText.strip())

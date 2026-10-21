@@ -73,6 +73,11 @@
                                     th:classappend="${p.active} ? 'danger' : ''"
                                     th:text="${p.active} ? '下架' : '上架'">下架</button>
                         </form>
+                        <form th:action="@{/admin/products/delete}" method="post"
+                              onsubmit="return confirm('删除后不可恢复。已有历史订单的商品会被拒绝删除。确定继续？')">
+                            <input type="hidden" name="id" th:value="${p.id}">
+                            <button type="submit" class="danger">删除</button>
+                        </form>
                     </div>
                 </td>
             </tr>
