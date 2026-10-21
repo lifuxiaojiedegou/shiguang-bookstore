@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>商品管理 · 拾光书店</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+<header class="masthead">
+    <div class="masthead-inner">
+        <a class="brand" th:href="@{/}">
+            <span class="brand-seal" aria-hidden="true">书</span>
+            <span class="brand-text">拾光书店</span>
+        </a>
+        <div class="masthead-meta">
+            <p class="brand-note">管理后台</p>
+            <div class="account" sec:authorize="isAuthenticated()">
+                <a th:href="@{/}">返回商城</a>
+                <a th:href="@{/admin/products}">商品管理</a>
+                <a th:href="@{/admin/orders}">订单管理</a>
+                <a th:href="@{/admin/stats}">销售报表</a>
+                <span sec:authentication="name">管理员</span>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit">退出</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="page-shell">
+    <h1 class="page-title">商品管理</h1>
+
+    <p class="form-success" th:if="${message}" th:text="${message}">提示</p>
+    <p class="form-error" th:if="${error}" th:text="${error}">错误</p>
+
+    <div class="admin-toolbar">
+        <span class="muted">共 <strong th:text="${#lists.size(products)}">0</strong> 件商品</span>
+        <a class="new-link" th:href="@{/admin/products/new}">新增商品</a>
+    </div>
+
+    <div class="table-wrap">
+        <table class="cart-table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>商品</th>
+                <th>分类</th>
+                <th>价格</th>
+                <th>库存</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="p : ${products}" th:classappend="${!p.active} ? 'is-inactive' : ''">
+                <td th:text="${p.id}">1</td>
+                <td th:text="${p.name}">书名</td>
+                <td th:text="${p.category}">分类</td>
+                <td class="price-cell"
+                    th:text="|¥${#numbers.formatDecimal(p.priceCents / 100.0, 1, 2)}|">¥0.00</td>
+                <td th:text="${p.stock}">0</td>
+                <td th:text="${p.active} ? '在售' : '已下架'">在售</td>
+                <td>
+                    <div class="admin-actions">
+                        <a th:href="@{/admin/products/{id}/edit(id=${p.id})}">编辑</a>
+                        <form th:action="@{/admin/products/toggle}" method="post">
+                            <input type="hidden" name="id" th:value="${p.id}">
+                            <input type="hidden" name="active" th:value="${!p.active}">
+                            <button type="submit"
+                                    th:classappend="${p.active} ? 'danger' : ''"
+                                    th:text="${p.active} ? '下架' : '上架'">下架</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>
