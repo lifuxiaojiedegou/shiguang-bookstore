@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>销售报表 · 拾光书店</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+<header class="masthead">
+    <div class="masthead-inner">
+        <a class="brand" th:href="@{/}">
+            <span class="brand-seal" aria-hidden="true">书</span>
+            <span class="brand-text">拾光书店</span>
+        </a>
+        <div class="masthead-meta">
+            <p class="brand-note">管理后台</p>
+            <div class="account" sec:authorize="isAuthenticated()">
+                <a th:href="@{/}">返回商城</a>
+                <a th:href="@{/admin/products}">商品管理</a>
+                <a th:href="@{/admin/orders}">订单管理</a>
+                <a th:href="@{/admin/stats}">销售报表</a>
+                <span sec:authentication="name">管理员</span>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit">退出</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="stats-page">
+    <h1 class="page-title">销售报表</h1>
+    <p class="stats-note">统计范围：已付款、已发货与已完成订单；待付款和已取消订单不计入。</p>
+
+    <section class="kpi-row" aria-label="销售概览">
+        <div class="stat-tile">
+            <span class="stat-label">累计销售额</span>
+            <strong class="stat-value"
+                    th:text="|¥${#numbers.formatDecimal(report.summary.revenueCents / 100.0, 1, 2)}|">¥0.00</strong>
+        </div>
+        <div class="stat-tile">
+            <span class="stat-label">已付款订单</span>
+            <strong class="stat-value" th:text="${report.summary.paidOrders}">0</strong>
+        </div>
+        <div class="stat-tile">
+            <span class="stat-label">客单价</span>
+            <strong class="stat-value"
+                    th:text="|¥${#numbers.formatDecimal(report.summary.averageOrderCents / 100.0, 1, 2)}|">¥0.00</strong>
+        </div>
+        <div class="stat-tile">
+            <span class="stat-label">低库存商品</span>
+            <strong class="stat-value" th:text="${report.summary.lowStockCount}">0</strong>
+            <span class="stat-note">库存少于 10 件的在售商品</span>
+        </div>
+    </section>
+
+    <section class="chart-grid">
+        <article class="chart-card wide">
+            <h2>最近 30 天销售额</h2>
+            <p class="chart-note">按付款日期汇总，未销售的日期按 0 计算。</p>
+            <div class="chart-box" id="daily-chart-box">
+                <div id="daily-chart"></div>
+                <div id="daily-tooltip" class="chart-tooltip" hidden></div>
+            </div>
+        </article>
+
+        <article class="chart-card">
+            <h2>商品销量排行</h2>
+            <p class="chart-note">按已付款订单中的成交数量统计。</p>
+            <div id="product-bars" class="bar-list"></div>
+            <p class="chart-empty" th:if="${#lists.isEmpty(report.topProducts)}">暂无已付款订单。</p>
+        </article>
+
+        <article class="chart-card">
+            <h2>分类销售额</h2>
+            <p class="chart-note">按当前商品分类汇总，括号内为销售额占比。</p>
+            <div id="category-bars" class="bar-list"></div>
+            <p class="chart-empty" th:if="${#lists.isEmpty(report.categories)}">暂无已付款订单。</p>
+        </article>
+    </section>
+
+    <details class="data-table">
+        <summary>每日销售数据表</summary>
+        <div class="table-wrap">
+            <table class="cart-table">
+                <thead>
+                <tr><th>日期</th><th>订单数</th><th>销售额</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="day : ${report.daily}">
+                    <td th:text="${day.day}">2026-10-20</td>
+                    <td th:text="${day.orders}">0</td>
+                    <td th:text="|¥${#numbers.formatDecimal(day.revenueCents / 100.0, 1, 2)}|">¥0.00</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </details>
+
+    <details class="data-table">
+        <summary>商品销量数据表</summary>
+        <div class="table-wrap">
+            <table class="cart-table">
+                <thead>
+                <tr><th>商品</th><th>销量</th><th>销售额</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${report.topProducts}">
+                    <td th:text="${item.name}">书名</td>
+                    <td th:text="${item.quantity}">0</td>
+                    <td th:text="|¥${#numbers.formatDecimal(item.revenueCents / 100.0, 1, 2)}|">¥0.00</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </details>
+
+    <details class="data-table">
+        <summary>分类销售数据表</summary>
+        <div class="table-wrap">
+            <table class="cart-table">
+                <thead>
+                <tr><th>分类</th><th>销量</th><th>销售额</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${report.categories}">
+                    <td th:text="${item.category}">分类</td>
+                    <td th:text="${item.quantity}">0</td>
+                    <td th:text="|¥${#numbers.formatDecimal(item.revenueCents / 100.0, 1, 2)}|">¥0.00</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </details>
+</main>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const dailyLabels = /*[[${dailyLabels}]]*/ [];
+    const dailyRevenueCents = /*[[${dailyRevenueCents}]]*/ [];
+    const productLabels = /*[[${productLabels}]]*/ [];
+    const productQuantities = /*[[${productQuantities}]]*/ [];
+    const categoryLabels = /*[[${categoryLabels}]]*/ [];
+    const categoryRevenueCents = /*[[${categoryRevenueCents}]]*/ [];
+
+    const escapeHtml = value => String(value).replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+
+    const money = value => '¥' + Number(value).toFixed(2);
+
+    function renderDailyChart() {
+        const container = document.getElementById('daily-chart');
+        const values = dailyRevenueCents.map(v => Number(v) / 100);
+        const width = 900;
+        const height = 300;
+        const padL = 64;
+        const padR = 20;
+        const padT = 18;
+        const padB = 38;
+        const plotW = width - padL - padR;
+        const plotH = height - padT - padB;
+        const maxValue = Math.max(...values, 0);
+        const niceMax = Math.max(100, Math.ceil(maxValue / 100) * 100);
+        const x = i => padL + (values.length <= 1 ? plotW / 2 : i * plotW / (values.length - 1));
+        const y = v => padT + plotH - (v / niceMax) * plotH;
+
+        let svg = '<svg viewBox="0 0 ' + width + ' ' + height + '" class="daily-svg" '
+            + 'role="img" aria-label="最近 30 天每日销售额趋势">';
+
+        for (let g = 0; g <= 4; g++) {
+            const value = niceMax * g / 4;
+            const yy = y(value);
+            svg += '<line x1="' + padL + '" y1="' + yy + '" x2="' + (width - padR)
+                + '" y2="' + yy + '" class="grid-line"/>';
+            svg += '<text x="' + (padL - 10) + '" y="' + (yy + 4)
+                + '" text-anchor="end" class="axis-label">'
+                + (value === 0 ? '¥0' : '¥' + value.toFixed(0)) + '</text>';
+        }
+
+        dailyLabels.forEach((label, i) => {
+            if (i % 5 === 0 || i === dailyLabels.length - 1) {
+                svg += '<text x="' + x(i) + '" y="' + (height - 12)
+                    + '" text-anchor="middle" class="axis-label">'
+                    + escapeHtml(label.slice(5)) + '</text>';
+            }
+        });
+
+        const points = values.map((v, i) => x(i) + ',' + y(v)).join(' ');
+        svg += '<polygon points="' + padL + ',' + y(0) + ' ' + points + ' '
+            + x(values.length - 1) + ',' + y(0) + '" class="trend-area"/>';
+        svg += '<polyline points="' + points + '" class="trend-line"/>';
+
+        values.forEach((v, i) => {
+            svg += '<circle cx="' + x(i) + '" cy="' + y(v) + '" r="4" class="trend-dot" '
+                + 'tabindex="0" data-date="' + escapeHtml(dailyLabels[i]) + '" '
+                + 'data-value="' + v.toFixed(2) + '" '
+                + 'aria-label="' + escapeHtml(dailyLabels[i]) + ' ' + money(v) + '"/>';
+        });
+
+        svg += '</svg>';
+        container.innerHTML = svg;
+    }
+
+    function renderBars(containerId, labels, values, valueFormatter, fillRatio) {
+        const container = document.getElementById(containerId);
+        if (!labels.length) {
+            container.innerHTML = '';
+            return;
+        }
+        const maxValue = Math.max(...values.map(Number), 1);
+        container.innerHTML = labels.map((label, i) => {
+            const value = Number(values[i]);
+            const width = fillRatio ? fillRatio(value, maxValue) : (value / maxValue * 100);
+            return '<div class="bar-row" title="' + escapeHtml(label) + '：' + valueFormatter(value) + '">'
+                + '<span class="bar-name">' + escapeHtml(label) + '</span>'
+                + '<span class="bar-track"><span class="bar-fill" style="width:'
+                + Math.max(0, Math.min(100, width)).toFixed(2) + '%"></span></span>'
+                + '<span class="bar-value">' + valueFormatter(value) + '</span>'
+                + '</div>';
+        }).join('');
+    }
+
+    function setupDailyTooltip() {
+        const box = document.getElementById('daily-chart-box');
+        const chart = document.getElementById('daily-chart');
+        const tip = document.getElementById('daily-tooltip');
+
+        const show = dot => {
+            const rect = box.getBoundingClientRect();
+            const dotRect = dot.getBoundingClientRect();
+            tip.textContent = dot.dataset.date + '　' + money(dot.dataset.value);
+            tip.style.left = (dotRect.left - rect.left + dotRect.width / 2) + 'px';
+            tip.style.top = (dotRect.top - rect.top) + 'px';
+            tip.hidden = false;
+        };
+        const hide = () => { tip.hidden = true; };
+
+        chart.addEventListener('mouseover', event => {
+            if (event.target.tagName === 'circle') show(event.target);
+        });
+        chart.addEventListener('mouseout', event => {
+            if (event.target.tagName === 'circle') hide();
+        });
+        chart.addEventListener('focusin', event => {
+            if (event.target.tagName === 'circle') show(event.target);
+        });
+        chart.addEventListener('focusout', hide);
+    }
+
+    function renderProductBars() {
+        renderBars('product-bars', productLabels, productQuantities,
+            value => value + ' 件');
+    }
+
+    function renderCategoryBars() {
+        const total = categoryRevenueCents.reduce((sum, v) => sum + Number(v), 0);
+        renderBars('category-bars', categoryLabels, categoryRevenueCents,
+            value => {
+                const share = total === 0 ? 0 : value / total * 100;
+                return money(value / 100) + '（' + share.toFixed(0) + '%）';
+            });
+    }
+
+    renderDailyChart();
+    renderProductBars();
+    renderCategoryBars();
+    setupDailyTooltip();
+    /*]]>*/
+</script>
+</body>
+</html>
