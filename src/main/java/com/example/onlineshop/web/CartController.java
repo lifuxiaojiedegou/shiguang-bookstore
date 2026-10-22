@@ -47,17 +47,17 @@ public class CartController {
         return "redirect:/";
 }
 
-@PostMapping("/cart/update")
-public String update(@RequestParam long productId,
-                     @RequestParam int quantity,
-                     Principal principal,
-                     RedirectAttributes redirect) {
+    @PostMapping("/cart/update")
+    public String update(@RequestParam long productId,
+                         @RequestParam int quantity,
+                         Principal principal,
+                         RedirectAttributes redirect) {
         try {
-            carts.add(currentUserId(principal), productId, quantity);
-            redirect.addFlashAttribute("message", "已加入购物车");
+            carts.updateQuantity(currentUserId(principal), productId, quantity);
+            redirect.addFlashAttribute("message", "数量已更新");
         } catch (IllegalArgumentException exception) {
             redirect.addFlashAttribute("error", exception.getMessage());
-    }
+        }
         return "redirect:/cart";
     }
 
