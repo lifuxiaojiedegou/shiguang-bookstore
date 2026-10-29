@@ -67,6 +67,10 @@ public class OrderService {
         return orders.findByUser(userId);
     }
 
+    public List<OrderItem> listItems(long orderId) {
+        return orders.findItems(orderId);
+    }
+
     @Transactional
     public void pay(long userId, long orderId) {
         if (orders.markPaid(orderId, userId) == 0) {

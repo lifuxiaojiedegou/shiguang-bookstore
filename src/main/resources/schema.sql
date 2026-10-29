@@ -72,3 +72,17 @@ CREATE TABLE IF NOT EXISTS mail_outbox (
                                            CONSTRAINT chk_mail_status CHECK (status IN ('PENDING','SENDING','SENT','SAVED','FAILED')),
                                            INDEX idx_mail_order (order_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS activity_log (
+                                            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                            user_id BIGINT NULL,
+                                            product_id BIGINT NULL,
+                                            product_name VARCHAR(80) NULL,
+                                            action VARCHAR(20) NOT NULL,
+                                            detail VARCHAR(200) NULL,
+                                            ip VARCHAR(45) NULL,
+                                            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                            CONSTRAINT chk_log_action CHECK (action IN ('VIEW','SEARCH','ADD_CART','ORDER')),
+                                            INDEX idx_log_created (created_at),
+                                            INDEX idx_log_product (product_id, action)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

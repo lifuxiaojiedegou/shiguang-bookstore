@@ -24,7 +24,7 @@ public class CartService {
         return carts.findByUser(userId);
     }
 
-    public void add(long userId, long productId, int quantity) {
+    public Product add(long userId, long productId, int quantity) {
         if (quantity < 1 || quantity > 99) {
             throw new IllegalArgumentException("数量必须在 1 到 99 之间");
         }
@@ -40,6 +40,7 @@ public class CartService {
             throw new IllegalArgumentException("库存不足");
         }
         carts.save(userId, productId, target);
+        return product;
     }
 
     public void updateQuantity(long userId, long productId, int quantity) {

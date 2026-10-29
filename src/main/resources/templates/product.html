@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="|${product.name} · 拾光书店|">商品详情 · 拾光书店</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+<header class="masthead">
+    <div class="masthead-inner">
+        <a class="brand" th:href="@{/}">
+            <span class="brand-seal" aria-hidden="true">书</span>
+            <span class="brand-text">拾光书店</span>
+        </a>
+        <div class="masthead-meta">
+            <p class="brand-note">校园图书目录</p>
+
+            <div class="account" sec:authorize="isAnonymous()">
+                <a th:href="@{/login}">登录</a>
+                <a th:href="@{/register}">注册</a>
+            </div>
+
+            <div class="account" sec:authorize="isAuthenticated()">
+                <a th:href="@{/cart}">购物车</a>
+                <a th:href="@{/orders}">我的订单</a>
+                <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/orders}">管理后台</a>
+                <span sec:authentication="name">用户</span>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit">退出</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="page-shell">
+    <p class="auth-switch"><a th:href="@{/(category=${product.category})}">← 返回</a></p>
+
+    <p class="form-success" th:if="${message}" th:text="${message}">提示</p>
+    <p class="form-error" th:if="${error}" th:text="${error}">错误</p>
+
+    <div class="checkout-grid">
+        <section class="checkout-panel">
+            <p class="product-category" th:text="${product.category}">分类</p>
+            <h1 class="book-title" th:text="${product.name}">书名</h1>
+            <p class="product-desc" th:text="${product.description}">简介</p>
+        </section>
+
+        <aside class="summary-panel">
+            <h2>购买</h2>
+            <div class="summary-total">
+                <span>单价</span>
+                <strong th:text="|¥${#numbers.formatDecimal(product.priceCents / 100.0, 1, 2)}|">¥0.00</strong>
+            </div>
+            <p class="stock" th:text="|库存 ${product.stock}|">库存 0</p>
+
+            <form sec:authorize="isAuthenticated()" th:action="@{/cart/add}"
+                  method="post" class="book-add">
+                <input type="hidden" name="productId" th:value="${product.id}">
+                <input type="hidden" name="fromDetail" value="true">
+                <label class="product-qty">数量
+                    <input type="number" name="quantity" value="1" min="1" max="99" required
+                           th:disabled="${product.stock == 0}">
+                </label>
+                <button type="submit" th:disabled="${product.stock == 0}"
+                        th:text="${product.stock == 0} ? '暂时售罄' : '加入购物车'">加入购物车</button>
+            </form>
+            <a sec:authorize="isAnonymous()" th:href="@{/login}" class="book-login">登录后购买</a>
+        </aside>
+    </div>
+</main>
+</body>
+</html>

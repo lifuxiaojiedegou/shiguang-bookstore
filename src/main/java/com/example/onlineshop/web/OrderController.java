@@ -1,9 +1,13 @@
 package com.example.onlineshop.web;
 
 import com.example.onlineshop.model.CartItem;
+import com.example.onlineshop.model.LogAction;
+import com.example.onlineshop.model.OrderItem;
 import com.example.onlineshop.repository.UserRepository;
 import com.example.onlineshop.service.CartService;
+import com.example.onlineshop.service.LogService;
 import com.example.onlineshop.service.OrderService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.security.Principal;
 import java.util.List;
@@ -21,11 +25,14 @@ public class OrderController {
     private final OrderService orders;
     private final CartService carts;
     private final UserRepository users;
+    private final LogService logs;
 
-    public OrderController(OrderService orders, CartService carts, UserRepository users) {
+    public OrderController(OrderService orders, CartService carts, UserRepository users,
+                           LogService logs) {
         this.orders = orders;
         this.carts = carts;
         this.users = users;
+        this.logs = logs;
     }
 
     @GetMapping("/checkout")
@@ -51,6 +58,7 @@ public class OrderController {
                            @RequestParam String checkoutToken,
                            Principal principal,
                            HttpSession session,
+                           HttpServletRequest request,
                            RedirectAttributes redirect) {
         Object expected = session.getAttribute("checkoutToken");
         if (expected == null || !checkoutToken.equals(expected.toString())) {
@@ -65,7 +73,11 @@ public class OrderController {
         }
 
         try {
-            orders.checkout(currentUserId(principal), address);
+            long orderId = orders.checkout(currentUserId(principal), address);
+            for (OrderItem item : orders.listItems(orderId)) {
+                logs.record(principal, request, LogAction.ORDER, item.productId(), item.name(),
+                        "订单 #" + orderId + " × " + item.quantity());
+            }
             redirect.addFlashAttribute("message", "订单已创建，请完成付款");
             return "redirect:/orders";
         } catch (IllegalArgumentException exception) {

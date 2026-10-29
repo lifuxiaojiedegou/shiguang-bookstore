@@ -72,7 +72,9 @@
                     <span th:text="${p.category}">分类</span>
                     <span th:text="${#numbers.formatInteger(iter.count, 2)}">01</span>
                 </div>
-                <h3 class="book-title" th:text="${p.name}">书名</h3>
+                <h3 class="book-title">
+                    <a th:href="@{/product/{id}(id=${p.id})}" th:text="${p.name}">书名</a>
+                </h3>
                 <p class="book-desc" th:text="${p.description}">简介</p>
                 <div class="book-foot">
                     <span class="price"
