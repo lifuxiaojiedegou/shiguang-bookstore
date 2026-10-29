@@ -222,7 +222,8 @@ mysqldump -u online_shop -p online_shop > online_shop_$(date +%F).sql
 
 ## 十一、三个月可用性
 
-- 确认服务器到期时间，设置续费提醒；
+- 本项目服务器已购买一年，有效期至 2027 年 10 月，可覆盖本课程期末提交报告后的三个月；
+- 可用性要求从提交报告之日起计算，期间须保持网站在校园网内可正常访问；
 - 保持 `systemctl enable online-shop mysql nginx`；
 - `Restart=always` 会自动拉起应用；
 - 每月检查一次 `systemctl status` 和磁盘空间；
