@@ -93,7 +93,7 @@
     </nav>
 
     <div class="table-wrap">
-        <table class="cart-table">
+        <table class="cart-table log-table">
             <thead>
             <tr>
                 <th>时间</th>
@@ -106,19 +106,19 @@
             </thead>
             <tbody>
             <tr th:each="l : ${logs}">
-                <td class="log-time"
+                <td
                     th:text="${#strings.replace(l.createdAt.toString(), 'T', ' ')}">2026-10-29 18:00:00</td>
                 <td th:text="${l.action.label()}">浏览</td>
                 <td th:text="${l.userEmail != null} ? ${l.userEmail} : '访客'">访客</td>
-                <td th:text="${l.productName != null} ? ${l.productName} : '—'">书名</td>
-                <td th:text="${l.detail != null} ? ${l.detail} : '—'">—</td>
+                <td class="log-wrap" th:text="${l.productName != null} ? ${l.productName} : '—'">书名</td>
+                <td class="log-wrap" th:text="${l.detail != null} ? ${l.detail} : '—'">—</td>
                 <td th:text="${l.ip}">127.0.0.1</td>
             </tr>
             </tbody>
         </table>
     </div>
     <p class="chart-empty" th:if="${#lists.isEmpty(logs)}">暂无日志。</p>
-    <p class="stats-note" th:unless="${#lists.isEmpty(logs)}">仅显示最近 100 条。</p>
+    <p class="log-note" th:unless="${#lists.isEmpty(logs)}">仅显示最近 100 条。</p>
 </main>
 </body>
 </html>

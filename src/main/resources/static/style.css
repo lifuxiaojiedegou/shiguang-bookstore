@@ -1314,6 +1314,18 @@ input:focus-visible {
     color: var(--paper);
 }
 
-.log-time {
+.log-table th,
+.log-table td {
     white-space: nowrap;
+}
+
+.log-table td.log-wrap {
+    min-width: 8em;
+    white-space: normal;
+}
+
+.log-note {
+    margin: 12px 0 0;
+    color: var(--muted);
+    font-size: 14px;
 }
